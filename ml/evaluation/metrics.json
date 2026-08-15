@@ -1,0 +1,25 @@
+{
+  "model": "logistic_regression",
+  "dataset": "NSL-KDD",
+  "accuracy": 0.7537260468417317,
+  "normal": {
+    "precision": 0.6504376763365406,
+    "recall": 0.9258572752548656,
+    "f1_score": 0.7640860032293703
+  },
+  "attack": {
+    "precision": 0.9174406604747162,
+    "recall": 0.6234707394997273,
+    "f1_score": 0.7424144010392503
+  },
+  "confusion_matrix": [
+    [
+      8991,
+      720
+    ],
+    [
+      4832,
+      8001
+    ]
+  ]
+}

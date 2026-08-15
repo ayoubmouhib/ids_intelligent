@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+node_modules/
+data/raw/
+# ML generated artifacts
+data/processed/
+ml/saved_models/
+data/datasets/
+ml/saved_models/*.pkl
+ml/saved_models/*.joblib
+.env
+*.log
+# Jupyter
+.ipynb_checkpoints/
