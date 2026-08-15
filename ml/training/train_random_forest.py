@@ -8,6 +8,10 @@ from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
+    classification_report,
+    precision_score,
+    recall_score,
+    f1_score,
 )
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
@@ -133,12 +137,27 @@ pipeline.fit(X_train, y_train)
 print("Training complete.")
 
 
-y_pred = pipeline.predict(X_test)
+y_proba = pipeline.predict_proba(X_test)[:, 1]
 
+thresholds = [0.5, 0.4, 0.3, 0.2]
 
-accuracy = accuracy_score(y_test, y_pred)
+print("\nThreshold analysis")
+print("=" * 60)
 
-print(f"\nTest accuracy: {accuracy:.4f}")
+for threshold in thresholds:
+    y_pred = (y_proba >= threshold).astype(int)
+
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+
+    print(f"\nThreshold: {threshold:.2f}")
+    print(f"Attack Precision: {precision:.4f}")
+    print(f"Attack Recall:    {recall:.4f}")
+    print(f"Attack F1:        {f1:.4f}")
+
+    print("Confusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
 
 
 print("\nConfusion Matrix:")
