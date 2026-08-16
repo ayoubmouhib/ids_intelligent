@@ -4,13 +4,7 @@ import pandas as pd
 
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    classification_report,
-    confusion_matrix,
-    precision_score,
-    recall_score,
-    f1_score,
-)
+from sklearn.metrics import recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
@@ -88,7 +82,7 @@ NUMERICAL_FEATURES = [
 
 
 # ============================================================
-# Load datasets
+# Load data
 # ============================================================
 
 print("Loading datasets...")
@@ -98,7 +92,7 @@ test_df = pd.read_csv(TEST_PATH)
 
 
 # ============================================================
-# Separate features and target
+# Prepare training data
 # ============================================================
 
 X = train_df[FEATURE_COLUMNS]
@@ -109,12 +103,7 @@ y_test = test_df["target"]
 
 
 # ============================================================
-# Split training data into:
-#
-# 80% -> actual training
-# 20% -> validation
-#
-# The official test set remains untouched.
+# Train / validation split
 # ============================================================
 
 X_train, X_val, y_train, y_val = train_test_split(
@@ -126,14 +115,8 @@ X_train, X_val, y_train, y_val = train_test_split(
 )
 
 
-print(f"Original training shape: {X.shape}")
-print(f"Actual training shape:   {X_train.shape}")
-print(f"Validation shape:        {X_val.shape}")
-print(f"Test shape:              {X_test.shape}")
-
-
 # ============================================================
-# Preprocessing
+# Preprocessor
 # ============================================================
 
 preprocessor = ColumnTransformer(
@@ -156,7 +139,7 @@ preprocessor = ColumnTransformer(
 
 
 # ============================================================
-# Random Forest model
+# Random Forest
 # ============================================================
 
 model = RandomForestClassifier(
@@ -165,16 +148,6 @@ model = RandomForestClassifier(
     n_jobs=-1,
 )
 
-
-# ============================================================
-# Complete ML pipeline
-#
-# Raw features
-#      ↓
-# OneHotEncoder
-#      ↓
-# Random Forest
-# ============================================================
 
 pipeline = Pipeline(
     steps=[
@@ -185,10 +158,10 @@ pipeline = Pipeline(
 
 
 # ============================================================
-# Train model
+# Train
 # ============================================================
 
-print("\nTraining Random Forest...")
+print("Training Random Forest...")
 
 pipeline.fit(X_train, y_train)
 
@@ -196,168 +169,143 @@ print("Training complete.")
 
 
 # ============================================================
-# VALIDATION
-#
-# We use validation data to choose the best threshold.
-#
-# IMPORTANT:
-# We do NOT use the official test set to choose the threshold.
+# Predict on official test set
 # ============================================================
 
-y_val_proba = pipeline.predict_proba(X_val)[:, 1]
+print("Predicting test data...")
+
+y_test_proba = pipeline.predict_proba(X_test)[:, 1]
 
 
-thresholds = [
-    0.10,
-    0.15,
-    0.20,
-    0.25,
-    0.30,
-    0.35,
-    0.40,
-    0.45,
-    0.50,
-]
-
-
-best_threshold = None
-best_f1 = -1.0
-
-
-print("\nValidation threshold analysis")
-print("=" * 60)
-
-
-for threshold in thresholds:
-
-    # Convert probability into prediction
-    #
-    # Example:
-    # probability = 0.73
-    # threshold   = 0.50
-    #
-    # 0.73 >= 0.50 -> ATTACK (1)
-
-    y_val_pred = (
-        y_val_proba >= threshold
-    ).astype(int)
-
-
-    precision = precision_score(
-        y_val,
-        y_val_pred,
-    )
-
-    recall = recall_score(
-        y_val,
-        y_val_pred,
-    )
-
-    f1 = f1_score(
-        y_val,
-        y_val_pred,
-    )
-
-
-    print(f"\nThreshold: {threshold:.2f}")
-    print(f"Attack Precision: {precision:.4f}")
-    print(f"Attack Recall:    {recall:.4f}")
-    print(f"Attack F1:        {f1:.4f}")
-
-
-    print("Confusion Matrix:")
-    print(
-        confusion_matrix(
-            y_val,
-            y_val_pred,
-        )
-    )
-
-
-    # Keep the threshold with the highest F1 score
-
-    if f1 > best_f1:
-        best_f1 = f1
-        best_threshold = threshold
-
-
-# ============================================================
-# Best threshold
-# ============================================================
-
-print("\nBest validation threshold")
-print("=" * 60)
-
-print(
-    f"Threshold: {best_threshold:.2f}"
-)
-
-print(
-    f"Validation Attack F1: {best_f1:.4f}"
-)
-
-
-# ============================================================
-# FINAL TEST EVALUATION
-#
-# The test set was NOT used during:
-#
-# - training
-# - threshold selection
-#
-# Therefore this is our final unbiased evaluation.
-# ============================================================
-
-print("\nFinal test evaluation")
-print("=" * 60)
-
-
-# Get attack probabilities for the official test set
-
-y_test_proba = pipeline.predict_proba(
-    X_test
-)[:, 1]
-
-
-# Apply the threshold selected using validation data
+# We selected 0.40 using the validation set.
+threshold = 0.40
 
 y_test_pred = (
-    y_test_proba >= best_threshold
+    y_test_proba >= threshold
 ).astype(int)
 
 
-print(
-    f"Using threshold: {best_threshold:.2f}"
+# ============================================================
+# Add predictions to test dataframe
+# ============================================================
+
+analysis_df = test_df.copy()
+
+analysis_df["predicted"] = y_test_pred
+
+analysis_df["correct"] = (
+    analysis_df["target"]
+    == analysis_df["predicted"]
 )
 
 
 # ============================================================
-# Confusion Matrix
+# Analyze attacks only
 # ============================================================
 
-print("\nConfusion Matrix:")
+attacks = analysis_df[
+    analysis_df["target"] == 1
+].copy()
 
-cm = confusion_matrix(
-    y_test,
-    y_test_pred,
+
+print("\nAttack error analysis")
+print("=" * 80)
+
+
+# ============================================================
+# Calculate statistics per attack type
+# ============================================================
+
+results = []
+
+
+for attack_type, group in attacks.groupby("label"):
+
+    total = len(group)
+
+    detected = (
+        group["predicted"] == 1
+    ).sum()
+
+    missed = (
+        group["predicted"] == 0
+    ).sum()
+
+    recall = detected / total
+
+    results.append(
+        {
+            "attack_type": attack_type,
+            "total": total,
+            "detected": detected,
+            "missed": missed,
+            "recall": recall,
+        }
+    )
+
+
+results_df = pd.DataFrame(results)
+
+
+# Sort by number of missed attacks
+
+results_df = results_df.sort_values(
+    by="missed",
+    ascending=False,
 )
 
-print(cm)
-
 
 # ============================================================
-# Classification Report
+# Display results
 # ============================================================
-
-print("\nClassification Report:")
 
 print(
-    classification_report(
-        y_test,
-        y_test_pred,
-        target_names=[
-            "NORMAL",
-            "ATTACK",
-        ],
+    results_df.to_string(
+        index=False,
+        formatters={
+            "recall": "{:.4f}".format,
+        },
+    )
+)
+
+
+# ============================================================
+# Total false negatives
+# ============================================================
+
+false_negatives = analysis_df[
+    (analysis_df["target"] == 1)
+    & (analysis_df["predicted"] == 0)
+]
+
+
+print("\nTotal missed attacks:")
+print(len(false_negatives))
+
+
+# ============================================================
+# Top 10 attack types responsible for missed attacks
+# ============================================================
+
+print("\nTop attack types by missed attacks")
+print("=" * 80)
+
+
+top_missed = (
+    results_df
+    .sort_values(
+        by="missed",
+        ascending=False,
+    )
+    .head(10)
+)
+
+
+print(
+    top_missed.to_string(
+        index=False,
+        formatters={
+            "recall": "{:.4f}".format,
+        },
     )
 )
