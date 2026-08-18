@@ -2,6 +2,9 @@ from sqlalchemy.orm import Session
 
 from backend.app.models.alert import Alert
 
+from sqlalchemy import desc
+
+
 
 def create_alert(
     db: Session,
@@ -24,3 +27,15 @@ def create_alert(
     db.refresh(alert)
 
     return alert
+
+def get_alerts(db: Session, limit: int = 50, offset: int = 0, decision: str | None = None):
+    query = db.query(Alert)
+
+    if decision:
+        query = query.filter(Alert.decision == decision.upper())
+
+    query = query.order_by(desc(Alert.created_at))
+    total_count = query.count()
+    alerts = query.offset(offset).limit(limit).all()
+
+    return total_count, alerts
