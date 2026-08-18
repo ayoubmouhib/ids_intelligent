@@ -1,0 +1,49 @@
+================================================================================
+FINAL INTELLIGENT INTRUSION DETECTION SYSTEM REPORT
+================================================================================
+
+1. FINAL IDS PERFORMANCE
+--------------------------------------------------------------------------------
+Accuracy:         0.8019
+Attack Precision: 0.9681
+Attack Recall:    0.6743
+Attack F1:        0.7949
+Total samples:    22544
+Normal samples:   9711
+Attack samples:   12833
+
+2. FINAL IDS DECISIONS
+--------------------------------------------------------------------------------
+NORMAL:      13606
+ATTACK:      8933
+SUSPICIOUS:  5
+
+Suspicious true attacks: 5
+Suspicious true normals: 0
+
+3. ARCHITECTURE
+--------------------------------------------------------------------------------
+Random Forest provides the primary supervised attack classification.
+Isolation Forest provides a complementary anomaly signal learned from normal traffic.
+
+Decision policy:
+  RF ATTACK + IF anything  -> ATTACK
+  RF NORMAL + IF ANOMALY   -> SUSPICIOUS
+  RF NORMAL + IF NORMAL    -> NORMAL
+
+4. IMPORTANT INTERPRETATION
+--------------------------------------------------------------------------------
+The Random Forest is the primary detection model.
+The Isolation Forest acts as a complementary anomaly detector.
+Suspicious decisions represent traffic for which the supervised and anomaly signals disagree.
+
+5. GENERATED FIGURES
+--------------------------------------------------------------------------------
+01_model_performance_comparison.png
+02_attack_detection_metrics.png
+03_hybrid_threshold_analysis.png
+04_final_decision_distribution.png
+05_suspicious_decision_quality.png
+06_shared_vs_test_only.png
+07_attack_type_recall.png
+08_rf_vs_if_attack_types.png

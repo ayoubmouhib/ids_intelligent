@@ -1,0 +1,2 @@
+accuracy,attack_precision,attack_recall,attack_f1,total_samples,normal_samples,attack_samples,normal_decisions,attack_decisions,suspicious_decisions,suspicious_true_attacks,suspicious_true_normals
+0.8019428672817601,0.9681136719624077,0.6742772539546482,0.7949106609710165,22544,9711,12833,13606,8933,5,5,0
