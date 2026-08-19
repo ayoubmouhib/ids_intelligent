@@ -4,6 +4,8 @@ from backend.app.api.routes.alerts import router as alerts
 from backend.app.api.routes.prediction import router as prediction_router
 from backend.app.api.routes.statistics import router as statistics
 from backend.app.db.init_db import init_db
+from backend.app.api.routes.analyze import router as analyze_router
+
 
 app = FastAPI(
     title="Intelligent Intrusion Detection System",
@@ -27,5 +29,6 @@ def health_check():
 
 
 app.include_router(prediction_router)
+app.include_router(analyze_router)
 app.include_router(alerts)
 app.include_router(statistics)
