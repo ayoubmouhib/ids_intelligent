@@ -4,13 +4,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api.routes.alerts import router as alerts
 from backend.app.api.routes.prediction import router as prediction_router
 from backend.app.api.routes.statistics import router as statistics
+from backend.app.api.routes.analyze import router as analyze
 from backend.app.db.init_db import init_db
+from contextlib import asynccontextmanager
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
 
 
 app = FastAPI(
     title="Intelligent Intrusion Detection System",
     description="AI-powered network intrusion detection API",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
@@ -34,9 +44,7 @@ app.add_middleware(
 # DATABASE INITIALIZATION
 # ============================================================
 
-@app.on_event("startup")
-def startup():
-    init_db()
+
 
 
 # ============================================================
@@ -58,3 +66,4 @@ def health_check():
 app.include_router(prediction_router)
 app.include_router(alerts)
 app.include_router(statistics)
+app.include_router(analyze)
