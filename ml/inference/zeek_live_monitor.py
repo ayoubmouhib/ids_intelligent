@@ -935,10 +935,6 @@ def predict_new_record(
         [-1]
     ].copy()
 
-    predictions = predict_traffic(
-        new_features
-    )
-
     prediction = predict_traffic(
         new_features
     )
@@ -1288,11 +1284,17 @@ def main():
                         )
                     )
 
+                    display_connection = new_record.copy()
+                    display_connection["service"] = features.get(
+                        "service",
+                        new_record.get("service"),
+                        )
+
                     print_prediction(
                         prediction_index,
-                        new_record,
+                        display_connection,
                         prediction,
-                    )
+                        )
 
                     save_prediction(
                         new_record,
