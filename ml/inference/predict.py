@@ -8,7 +8,12 @@ import pandas as pd
 # PATHS
 # ============================================================
 
-MODEL_DIR = Path("models")
+# MODEL_DIR = Path("models")
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+MODEL_DIR = PROJECT_ROOT / "models"
+
 
 RF_MODEL_PATH = MODEL_DIR / "random_forest_final.joblib"
 IF_MODEL_PATH = MODEL_DIR / "isolation_forest_final.joblib"
@@ -19,8 +24,6 @@ CONFIG_PATH = MODEL_DIR / "ids_config.joblib"
 # LOAD MODELS
 # ============================================================
 
-print("Loading IDS models...")
-
 rf_model = joblib.load(RF_MODEL_PATH)
 if_model = joblib.load(IF_MODEL_PATH)
 config = joblib.load(CONFIG_PATH)
@@ -29,10 +32,22 @@ RF_THRESHOLD = config["rf_threshold"]
 IF_THRESHOLD = config["if_threshold"]
 FEATURE_COLUMNS = config["feature_columns"]
 
-print("Models loaded successfully.")
+def load_models():
+    """
+    Load IDS models and return their configuration.
+    """
 
-print(f"RF threshold: {RF_THRESHOLD:.2f}")
-print(f"IF threshold: {IF_THRESHOLD:.2f}")
+    print("Loading IDS models...")
+
+    print("Models loaded successfully.")
+
+    print(
+        f"RF threshold: {RF_THRESHOLD:.2f}"
+    )
+
+    print(
+        f"IF threshold: {IF_THRESHOLD:.2f}"
+    )
 
 
 # ============================================================
@@ -165,9 +180,18 @@ def predict_traffic(record):
 
 if __name__ == "__main__":
 
-    TEST_PATH = Path(
-        "data/processed/nsl-kdd/test.csv"
-    )
+    load_models()
+    #TEST_PATH = Path(
+     #   "data/processed/nsl-kdd/test.csv"
+    #)
+
+    TEST_PATH = (
+        PROJECT_ROOT
+        / "data"
+        / "processed"
+        / "nsl-kdd"
+        / "test.csv"
+	)
 
     print("\nLoading test data...")
 
@@ -202,8 +226,15 @@ if __name__ == "__main__":
     # Save predictions
     # --------------------------------------------------------
 
-    output_path = Path(
-        "data/analysis/final_ids_predictions.csv"
+    #output_path = Path(
+     #   "data/analysis/final_ids_predictions.csv"
+    #)
+
+    output_path = (
+        PROJECT_ROOT
+        / "data"
+        / "analysis"
+        / "final_ids_predictions.csv"
     )
 
     output_path.parent.mkdir(
