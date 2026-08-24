@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from typing import Optional
 
 class TrafficFeatures(BaseModel):
 
@@ -54,3 +54,20 @@ class TrafficFeatures(BaseModel):
     dst_host_srv_serror_rate: float
     dst_host_rerror_rate: float
     dst_host_srv_rerror_rate: float
+
+
+class ZeekConnectionMeta(BaseModel):
+    timestamp: Optional[float] = None
+    uid: Optional[str] = None
+    source_ip: str
+    source_port: Optional[int] = None
+    destination_ip: str
+    destination_port: Optional[int] = None
+    connection_state: Optional[str] = None
+    source_packets: Optional[int] = None
+    destination_packets: Optional[int] = None
+
+
+class ZeekAnalyzeRequest(BaseModel):
+    meta: ZeekConnectionMeta
+    features: TrafficFeatures

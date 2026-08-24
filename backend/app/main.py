@@ -5,7 +5,9 @@ from backend.app.api.routes.alerts import router as alerts
 from backend.app.api.routes.prediction import router as prediction_router
 from backend.app.api.routes.statistics import router as statistics
 from backend.app.api.routes.analyze import router as analyze
+from backend.app.api.routes.zeek import router as zeek_router
 from backend.app.db.init_db import init_db
+from backend.app.api.routes.zeek_events import router as zeek_events_router
 from contextlib import asynccontextmanager
 
 
@@ -67,3 +69,5 @@ app.include_router(prediction_router)
 app.include_router(alerts)
 app.include_router(statistics)
 app.include_router(analyze)
+app.include_router(zeek_router)
+app.include_router(zeek_events_router)
