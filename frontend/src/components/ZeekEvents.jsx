@@ -1,6 +1,7 @@
 import {
   Activity,
   ArrowDown,
+  ArrowRight,
   ArrowUp,
   Clock,
   Globe,
@@ -10,23 +11,73 @@ import {
 
 function ZeekEvents({ events = [] }) {
   const formatBytes = (bytes) => {
-    if (bytes === null || bytes === undefined) {
+    if (bytes === null || bytes === undefined || Number.isNaN(Number(bytes))) {
       return "—";
     }
 
-    if (bytes < 1024) {
-      return `${bytes.toFixed(0)} B`;
+    const value = Number(bytes);
+
+    if (value < 1024) {
+      return `${value.toFixed(0)} B`;
     }
 
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`;
+    if (value < 1024 * 1024) {
+      return `${(value / 1024).toFixed(1)} KB`;
     }
 
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    if (value < 1024 * 1024 * 1024) {
+      return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    return `${(value / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  };
+
+  const formatNumber = (value, decimals = 0) => {
+    if (
+      value === null ||
+      value === undefined ||
+      Number.isNaN(Number(value))
+    ) {
+      return "—";
+    }
+
+    return Number(value).toFixed(decimals);
+  };
+
+  const formatProbability = (value) => {
+    if (
+      value === null ||
+      value === undefined ||
+      Number.isNaN(Number(value))
+    ) {
+      return "—";
+    }
+
+    return `${(Number(value) * 100).toFixed(1)}%`;
+  };
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) {
+      return "—";
+    }
+
+    const date = new Date(timestamp);
+
+    if (Number.isNaN(date.getTime())) {
+      return "—";
+    }
+
+    return date.toLocaleString([], {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   const getDecisionClass = (decision) => {
-    switch (decision) {
+    switch (decision?.toUpperCase()) {
       case "ATTACK":
         return "zeek-decision attack";
 
@@ -40,17 +91,25 @@ function ZeekEvents({ events = [] }) {
   };
 
   const getDecisionIcon = (decision) => {
-    switch (decision) {
+    switch (decision?.toUpperCase()) {
       case "ATTACK":
-        return <ShieldAlert size={18} />;
+        return <ShieldAlert size={16} />;
 
       case "SUSPICIOUS":
-        return <Activity size={18} />;
+        return <Activity size={16} />;
 
       case "NORMAL":
       default:
-        return <ShieldCheck size={18} />;
+        return <ShieldCheck size={16} />;
     }
+  };
+
+  const getDecisionLabel = (decision) => {
+    if (!decision) {
+      return "UNKNOWN";
+    }
+
+    return decision.toUpperCase();
   };
 
   return (
@@ -58,138 +117,196 @@ function ZeekEvents({ events = [] }) {
       <div className="panel-header">
         <div>
           <h2>Zeek Network Events</h2>
-          <p>Live network connections analyzed by the IDS</p>
+
+          <p>
+            Network connections analyzed by the IDS
+          </p>
         </div>
 
-        <div className="live-indicator">
-          <span></span>
-          LIVE
+        <div className="zeek-live-status">
+          <span className="zeek-live-dot"></span>
+          LIVE MONITORING
         </div>
+      </div>
+
+      <div className="zeek-event-summary">
+        <span>
+          {events.length} event{events.length !== 1 ? "s" : ""}
+        </span>
+
+        <span>
+          Zeek → RF + IF → Decision
+        </span>
       </div>
 
       <div className="zeek-event-list">
         {events.length === 0 ? (
           <div className="empty-state">
-            No Zeek network events detected.
+            <ShieldCheck size={24} />
+            <span>No Zeek network events detected.</span>
           </div>
         ) : (
           events.map((event) => (
-            <div
-              className="zeek-event-item"
+            <article
+              className={`zeek-event-item ${(
+                event.decision || "NORMAL"
+              ).toLowerCase()}`}
               key={event.id}
             >
-              <div
-                className={getDecisionClass(
-                  event.decision
-                )}
-              >
-                {getDecisionIcon(event.decision)}
+              <div className="zeek-event-severity">
+                <div className={getDecisionClass(event.decision)}>
+                  {getDecisionIcon(event.decision)}
 
-                <span>
-                  {event.decision}
-                </span>
+                  <span>
+                    {getDecisionLabel(event.decision)}
+                  </span>
+                </div>
               </div>
 
               <div className="zeek-event-main">
 
                 <div className="zeek-flow">
-
                   <div className="zeek-endpoint">
+                    <span className="zeek-endpoint-label">
+                      SOURCE
+                    </span>
+
                     <strong>
-                      {event.source_ip}
+                      {event.source_ip || "—"}
                     </strong>
 
-                    <span>
+                    <span className="zeek-port">
                       :{event.source_port ?? "—"}
                     </span>
                   </div>
 
-                  <div className="zeek-arrow">
-                    <ArrowUp size={14} />
+                  <div className="zeek-flow-arrow">
+                    <ArrowRight size={18} />
                   </div>
 
                   <div className="zeek-endpoint">
+                    <span className="zeek-endpoint-label">
+                      DESTINATION
+                    </span>
+
                     <strong>
-                      {event.destination_ip}
+                      {event.destination_ip || "—"}
                     </strong>
 
-                    <span>
+                    <span className="zeek-port">
                       :{event.destination_port ?? "—"}
                     </span>
                   </div>
-
                 </div>
 
                 <div className="zeek-meta">
 
-                  <span>
+                  <span className="zeek-meta-item">
                     <Globe size={13} />
-
-                    {event.protocol?.toUpperCase() || "—"}
+                    <strong>
+                      {event.protocol?.toUpperCase() || "UNKNOWN"}
+                    </strong>
                   </span>
 
-                  <span>
-                    Service:{" "}
-                    {event.service || "unknown"}
+                  <span className="zeek-meta-item">
+                    Service:
+                    <strong>
+                      {event.service || "unknown"}
+                    </strong>
                   </span>
 
-                  <span>
-                    State:{" "}
-                    {event.connection_state || "—"}
+                  <span className="zeek-meta-item">
+                    State:
+                    <strong>
+                      {event.connection_state || "—"}
+                    </strong>
                   </span>
 
-                  <span>
-                    Duration:{" "}
-                    {event.duration !== null &&
-                    event.duration !== undefined
-                      ? `${event.duration.toFixed(2)}s`
-                      : "—"}
-                  </span>
-
-                </div>
-
-                <div className="zeek-traffic">
-
-                  <span>
-                    <ArrowUp size={12} />
-
-                    {formatBytes(
-                      event.source_bytes
-                    )}
-                  </span>
-
-                  <span>
-                    <ArrowDown size={12} />
-
-                    {formatBytes(
-                      event.destination_bytes
-                    )}
-                  </span>
-
-                  <span>
-                    RF:{" "}
-                    {(event.rf_probability * 100).toFixed(1)}
-                    %
-                  </span>
-
-                  <span>
-                    IF:{" "}
-                    {event.if_score.toFixed(3)}
+                  <span className="zeek-meta-item">
+                    <Clock size={13} />
+                    Duration:
+                    <strong>
+                      {event.duration !== null &&
+                      event.duration !== undefined
+                        ? `${formatNumber(event.duration, 2)}s`
+                        : "—"}
+                    </strong>
                   </span>
 
                 </div>
 
+                <div className="zeek-details">
+
+                  <div className="zeek-detail-group">
+                    <span className="zeek-detail-label">
+                      TRAFFIC
+                    </span>
+
+                    <div className="zeek-traffic-values">
+                      <span className="zeek-traffic-up">
+                        <ArrowUp size={12} />
+
+                        {formatBytes(event.source_bytes)}
+
+                        <small>
+                          {formatNumber(
+                            event.source_packets
+                          )} pkts
+                        </small>
+                      </span>
+
+                      <span className="zeek-traffic-down">
+                        <ArrowDown size={12} />
+
+                        {formatBytes(event.destination_bytes)}
+
+                        <small>
+                          {formatNumber(
+                            event.destination_packets
+                          )} pkts
+                        </small>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="zeek-detail-group">
+                    <span className="zeek-detail-label">
+                      ML ANALYSIS
+                    </span>
+
+                    <div className="zeek-ml-values">
+                      <span>
+                        RF:
+                        <strong>
+                          {formatProbability(
+                            event.rf_probability
+                          )}
+                        </strong>
+                      </span>
+
+                      <span>
+                        IF:
+                        <strong>
+                          {formatNumber(
+                            event.if_score,
+                            3
+                          )}
+                        </strong>
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
               </div>
 
               <div className="zeek-event-time">
                 <Clock size={13} />
 
-                {new Date(
-                  event.created_at
-                ).toLocaleString()}
+                <span>
+                  {formatTimestamp(event.created_at)}
+                </span>
               </div>
-
-            </div>
+            </article>
           ))
         )}
       </div>
