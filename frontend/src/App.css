@@ -182,3 +182,140 @@
     border-right-color: var(--border);
   }
 }
+
+/* =========================================================
+   ZEEK NETWORK EVENTS
+   ========================================================= */
+
+.zeek-section {
+  margin-top: 20px;
+}
+
+.zeek-events-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+.zeek-event-list {
+  max-height: 430px;
+  overflow-y: auto;
+}
+
+.zeek-event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.zeek-event-item:first-child {
+  border-top: none;
+}
+
+.zeek-event-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.zeek-decision {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 115px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.zeek-decision.attack {
+  color: #ff3b6b;
+}
+
+.zeek-decision.suspicious {
+  color: #ffae00;
+}
+
+.zeek-decision.normal {
+  color: #00e676;
+}
+
+.zeek-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.zeek-endpoint {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.zeek-endpoint strong {
+  color: #e8edf7;
+}
+
+.zeek-endpoint span {
+  color: #71809c;
+}
+
+.zeek-arrow {
+  color: #5f7194;
+}
+
+.zeek-meta,
+.zeek-traffic {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: #71809c;
+  font-size: 11px;
+}
+
+.zeek-meta {
+  margin-bottom: 8px;
+}
+
+.zeek-meta span,
+.zeek-traffic span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zeek-traffic {
+  color: #8b9ab5;
+}
+
+.zeek-event-time {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #63718b;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .zeek-event-item {
+    flex-direction: column;
+  }
+
+  .zeek-event-time {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .zeek-flow {
+    flex-wrap: wrap;
+  }
+
+  .zeek-meta,
+  .zeek-traffic {
+    gap: 8px;
+  }
+}
