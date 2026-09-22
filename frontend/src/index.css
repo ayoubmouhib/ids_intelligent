@@ -968,3 +968,8 @@ select {
     gap: 16px;
   }
 }
+
+.full-width-section {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
