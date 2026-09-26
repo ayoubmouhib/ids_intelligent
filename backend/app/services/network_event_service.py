@@ -8,12 +8,30 @@ def get_network_events(
     limit: int = 50,
     offset: int = 0,
     decision: str | None = None,
+    source_ip: str | None = None,
+    start_time=None,
+    end_time=None,
 ):
     query = db.query(NetworkEvent)
 
     if decision:
         query = query.filter(
             NetworkEvent.decision == decision.upper()
+        )
+
+    if source_ip:
+        query = query.filter(
+            NetworkEvent.source_ip == source_ip
+        )
+
+    if start_time:
+        query = query.filter(
+            NetworkEvent.created_at >= start_time
+        )
+
+    if end_time:
+        query = query.filter(
+            NetworkEvent.created_at < end_time
         )
 
     total_count = query.count()

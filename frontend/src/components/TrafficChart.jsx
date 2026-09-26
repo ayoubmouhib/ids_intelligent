@@ -1,77 +1,3 @@
-
-/*import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-import { Doughnut } from "react-chartjs-2";
-
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend
-);
-
-function TrafficChart({ statistics }) {
-  const data = {
-    labels: [
-      "Attacks",
-      "Normal",
-      "Suspicious",
-    ],
-
-    datasets: [
-      {
-        data: [
-          statistics.attacks,
-          statistics.normal,
-          statistics.suspicious,
-        ],
-        borderWidth: 0,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-
-    plugins: {
-      legend: {
-        position: "bottom",
-        labels: {
-          color: "#a7b0c0",
-          padding: 20,
-        },
-      },
-    },
-
-    cutout: "72%",
-  };
-
-  return (
-    <div className="panel chart-panel">
-      <div className="panel-header">
-        <div>
-          <h2>Traffic Distribution</h2>
-          <p>Current network flow classification</p>
-        </div>
-      </div>
-
-      <div className="chart-container">
-        <Doughnut
-          data={data}
-          options={options}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default TrafficChart;
-*/
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -80,8 +6,8 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
-
 import { Line } from "react-chartjs-2";
 
 ChartJS.register(
@@ -90,53 +16,38 @@ ChartJS.register(
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
-function TrafficChart({ alerts = [] }) {
-  /*
-   * Build a simple timeline from the alerts currently
-   * returned by the FastAPI backend.
-   *
-   * Important:
-   * These are IDS detection events, not raw packet volume.
-   * Raw network traffic will be added later when Zeek
-   * integration is implemented.
-   */
+function TrafficChart({ timelineData = [] }) {
+  const labels = timelineData.map((bucket) => {
+    const date = new Date(bucket.time);
 
-  const sortedAlerts = [...alerts]
-    .filter((alert) => alert.created_at)
-    .sort(
-      (a, b) =>
-        new Date(a.created_at) -
-        new Date(b.created_at)
-    );
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
 
-  const labels = sortedAlerts.map((alert) =>
-    new Date(alert.created_at).toLocaleTimeString(
-      [],
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    )
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  });
+
+  const attacks = timelineData.map(
+    (bucket) => bucket.attacks || 0
   );
 
-  const attacks = sortedAlerts.map((alert) =>
-    alert.decision === "ATTACK" ? 1 : 0
+  const suspicious = timelineData.map(
+    (bucket) => bucket.suspicious || 0
   );
 
-  const suspicious = sortedAlerts.map((alert) =>
-    alert.decision === "SUSPICIOUS" ? 1 : 0
-  );
-
-  const normal = sortedAlerts.map((alert) =>
-    alert.decision === "NORMAL" ? 1 : 0
+  const normal = timelineData.map(
+    (bucket) => bucket.normal || 0
   );
 
   const data = {
     labels,
-
     datasets: [
       {
         label: "Attacks",
@@ -177,10 +88,12 @@ function TrafficChart({ alerts = [] }) {
     plugins: {
       legend: {
         position: "bottom",
-
         labels: {
           color: "#a7b0c0",
-          padding: 20,
+          padding: 16,
+          font: {
+            size: 12,
+          },
         },
       },
 
@@ -198,20 +111,20 @@ function TrafficChart({ alerts = [] }) {
         grid: {
           color: "rgba(100, 116, 139, 0.08)",
         },
-
         ticks: {
           color: "#64748b",
+          font: {
+            size: 11,
+          },
         },
       },
 
       y: {
         beginAtZero: true,
-
         ticks: {
-          stepSize: 1,
+          precision: 0,
           color: "#64748b",
         },
-
         grid: {
           color: "rgba(100, 116, 139, 0.08)",
         },
@@ -224,23 +137,23 @@ function TrafficChart({ alerts = [] }) {
       <div className="panel-header">
         <div>
           <h2>Detection Activity</h2>
-
-          <p>
-            IDS security events over time
-          </p>
+          <p>Network security classification trends</p>
         </div>
       </div>
 
-      <div className="chart-container">
-        {sortedAlerts.length === 0 ? (
-          <div className="empty-chart">
-            No detection events available
+      <div
+        className="chart-container"
+        style={{
+          height: "260px",
+          position: "relative",
+        }}
+      >
+        {timelineData.length === 0 ? (
+          <div className="empty-state">
+            No traffic timeline data available.
           </div>
         ) : (
-          <Line
-            data={data}
-            options={options}
-          />
+          <Line data={data} options={options} />
         )}
       </div>
     </div>
