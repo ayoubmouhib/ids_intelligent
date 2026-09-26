@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Activity, RefreshCw, Shield } from "lucide-react";
 
 import {
-  getAlerts,
   getStatistics,
   getStatisticsTimeline,
   getZeekEvents,
@@ -24,7 +23,6 @@ function Dashboard() {
     attack_rate: 0,
   });
 
-  const [alerts, setAlerts] = useState([]);
   const [zeekEvents, setZeekEvents] = useState([]);
   const [timelineData, setTimelineData] = useState([]);
   const [availableSourceIps, setAvailableSourceIps] = useState([]);
@@ -77,13 +75,9 @@ function Dashboard() {
 
   const hours = timelineHours[timeRange] || 24;
 
-  const [alertsData, zeekData, statisticsData, timelineResponse] =
+  const [zeekData, statisticsData, timelineResponse] =
   await Promise.all([
-    getAlerts({
-      limit: 50,
-      ...(decision ? { decision } : {}),
-    }),
-
+   
     getZeekEvents({
       limit: 50,
       ...(decision ? { decision } : {}),
@@ -116,7 +110,7 @@ function Dashboard() {
   ]);
    
 
-    setAlerts(alertsData.alerts || []);
+    
     setStatistics(statisticsData);
     setZeekEvents(zeekData.events || []);
     setTimelineData(timelineResponse || []);
