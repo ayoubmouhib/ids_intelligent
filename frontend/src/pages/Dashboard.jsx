@@ -9,6 +9,7 @@ import {
 import {
   getAlerts,
   getStatistics,
+  getZeekEvents,
 } from "../services/api";
 
 import StatsCards from "../components/StatsCards";
@@ -16,6 +17,7 @@ import AlertFeed from "../components/AlertFeed";
 import TrafficChart from "../components/TrafficChart";
 import AttackMap from "../components/AttackMap";
 import Filters from "../components/Filters";
+import ZeekEvents from "../components/ZeekEvents";
 
 function Dashboard() {
   const [statistics, setStatistics] = useState({
@@ -27,6 +29,7 @@ function Dashboard() {
   });
 
   const [alerts, setAlerts] = useState([]);
+  const [zeekEvents, setZeekEvents] = useState([]);
 
   const [decision, setDecision] = useState("");
   const [timeRange, setTimeRange] = useState("all");
@@ -34,22 +37,23 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const TIME_RANGES = {
+  "1h": 60 * 60 * 1000,
+  "6h": 6 * 60 * 60 * 1000,
+  "24h": 24 * 60 * 60 * 1000,
+  "7d": 7 * 24 * 60 * 60 * 1000,
+};
 
   const getFilteredAlerts = () => {
   if (timeRange === "all") {
     return alerts;
   }
 
+  
+
   const now = new Date();
 
-  const ranges = {
-    "1h": 60 * 60 * 1000,
-    "6h": 6 * 60 * 60 * 1000,
-    "24h": 24 * 60 * 60 * 1000,
-    "7d": 7 * 24 * 60 * 60 * 1000,
-  };
-
-  const range = ranges[timeRange];
+  const range = TIME_RANGES[timeRange];
 
   if (!range) {
     return alerts;
@@ -64,24 +68,58 @@ function Dashboard() {
   });
 };
 
+const getFilteredZeekEvents = () => {
+  if (timeRange === "all") {
+    return zeekEvents;
+  }
+
+  const now = new Date();
+
+  const range = TIME_RANGES[timeRange];
+
+  if (!range) {
+    return zeekEvents;
+  }
+
+  return zeekEvents.filter((event) => {
+    const eventTime = new Date(
+      event.created_at
+    ).getTime();
+
+    return now.getTime() - eventTime <= range;
+  });
+};
+
   const loadDashboard = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const [statsData, alertsData] =
-        await Promise.all([
-          getStatistics(),
-          getAlerts({
-            limit: 50,
-            ...(decision
-              ? { decision }
-              : {}),
-          }),
-        ]);
+      const [
+        statsData,
+        alertsData,
+        zeekData,
+      ] = await Promise.all([
+        getStatistics(),
+
+        getAlerts({
+          limit: 50,
+          ...(decision
+            ? { decision }
+            : {}),
+        }),
+
+        getZeekEvents({
+          limit: 50,
+          ...(decision
+            ? { decision }
+            : {}),
+        }),
+      ]);
 
       setStatistics(statsData);
       setAlerts(alertsData.alerts || []);
+      setZeekEvents(zeekData.events || []);
     } catch (err) {
       console.error(err);
 
@@ -106,6 +144,7 @@ function Dashboard() {
   }, [decision]);
 
   const filteredAlerts = getFilteredAlerts();
+  const filteredZeekEvents = getFilteredZeekEvents();
 
   return (
     <div className="dashboard">
@@ -173,15 +212,23 @@ function Dashboard() {
 
         <section className="dashboard-grid">
 
-          <TrafficChart
-  alerts={filteredAlerts}
-/>
+            <TrafficChart
+            alerts={filteredAlerts}
+          />
 
-          <AttackMap
-  alerts={filteredAlerts}
-/>
+            <AttackMap
+            alerts={filteredAlerts}
+          />
 
         </section>
+
+        <section className="dashboard-grid zeek-section">
+
+          <ZeekEvents
+            events={filteredZeekEvents}
+          />
+
+      </section>
 
         <section className="dashboard-grid bottom">
 

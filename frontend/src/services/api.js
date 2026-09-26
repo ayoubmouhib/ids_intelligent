@@ -37,6 +37,27 @@ export const getStatistics = async () => {
   return response.data;
 };
 
+export const getZeekEvents = async ({
+  limit = 50,
+  offset = 0,
+  decision = null,
+} = {}) => {
+  const params = {
+    limit,
+    offset,
+  };
+
+  if (decision) {
+    params.decision = decision;
+  }
+
+  const response = await api.get("/zeek/events", {
+    params,
+  });
+
+  return response.data;
+};
+
 export const predictTraffic = async (features) => {
   const response = await api.post("/predict", features);
   return response.data;

@@ -11,7 +11,7 @@ from sklearn.metrics import (
 )
 
 from predict import predict_traffic
-
+#from ml.inference.predict import predict_traffic
 
 TEST_PATH = Path("data/processed/nsl-kdd/test.csv")
 

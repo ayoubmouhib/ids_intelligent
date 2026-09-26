@@ -648,3 +648,323 @@ select {
     width: 100%;
   }
 }
+
+/* =========================================================
+   ZEEK NETWORK EVENTS
+   ========================================================= */
+
+.zeek-section {
+  margin-top: 20px;
+}
+
+.zeek-events-panel {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.zeek-events-panel .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.zeek-live-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 999px;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.06);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.zeek-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+}
+
+.zeek-event-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.zeek-event-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.zeek-event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  transition: background 0.15s ease;
+}
+
+.zeek-event-item:first-child {
+  border-top: none;
+}
+
+.zeek-event-item:hover {
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.zeek-event-severity {
+  min-width: 105px;
+  padding-top: 2px;
+}
+
+.zeek-decision {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 96px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.zeek-decision.attack {
+  color: #ff4d6d;
+  background: rgba(255, 59, 107, 0.09);
+  border: 1px solid rgba(255, 59, 107, 0.18);
+}
+
+.zeek-decision.suspicious {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.09);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+.zeek-decision.normal {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.07);
+  border: 1px solid rgba(34, 197, 94, 0.14);
+}
+
+.zeek-event-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.zeek-flow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 11px;
+}
+
+.zeek-endpoint {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.zeek-endpoint-label {
+  width: 100%;
+  margin-bottom: 2px;
+  color: #4f5f7b;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.zeek-endpoint strong {
+  color: #e8edf7;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.zeek-port {
+  color: #64748b;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.zeek-flow-arrow {
+  display: flex;
+  align-items: center;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.zeek-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 13px;
+  color: #71809c;
+  font-size: 10px;
+}
+
+.zeek-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zeek-meta-item strong {
+  color: #a7b0c0;
+  font-weight: 600;
+}
+
+.zeek-details {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.zeek-detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zeek-detail-label {
+  color: #4f5f7b;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.zeek-traffic-values,
+.zeek-ml-values {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #8b9ab5;
+  font-size: 10px;
+}
+
+.zeek-traffic-values span,
+.zeek-ml-values span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zeek-traffic-up {
+  color: #7f9cff;
+}
+
+.zeek-traffic-down {
+  color: #8da7c7;
+}
+
+.zeek-traffic-values small {
+  color: #4f5f7b;
+  font-size: 9px;
+}
+
+.zeek-ml-values strong {
+  margin-left: 2px;
+  color: #c3ccdc;
+  font-weight: 600;
+}
+
+.zeek-event-time {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 120px;
+  padding-top: 3px;
+  color: #63718b;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 180px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* Zeek event scrollbar */
+
+.zeek-event-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.zeek-event-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.zeek-event-list::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+  border-radius: 999px;
+}
+
+/* Responsive */
+
+@media (max-width: 1000px) {
+  .zeek-event-item {
+    flex-wrap: wrap;
+  }
+
+  .zeek-event-severity {
+    min-width: auto;
+  }
+
+  .zeek-event-time {
+    width: 100%;
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .zeek-events-panel .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .zeek-event-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .zeek-flow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .zeek-flow-arrow {
+    transform: rotate(90deg);
+  }
+
+  .zeek-details {
+    gap: 16px;
+  }
+}
