@@ -2,10 +2,11 @@ fastapi
 uvicorn
 pydantic
 sqlalchemy
-psycopg2
+psycopg2-binary
 redis
 joblib
 pandas
+numpy
 scikit-learn
 pytest
 httpx
